@@ -10,7 +10,7 @@ Frame::Frame(Image &&image, std::uint16_t timecode, std::unique_ptr<Interpolatio
 
 }
 
-void Frame::apply(const Algorithm &algorithm)
+void Frame::apply(Algorithm &algorithm)
 {
 	algorithm.applyOn(image);
 }

@@ -10,7 +10,7 @@ class Frame
 
 		Frame(Image &&image, std::uint16_t timecode, std::unique_ptr<Interpolation> &&interpolation);
 
-		void apply(const Algorithm &algorithm);
+		void apply(Algorithm &algorithm);
 
 		void save() const;
 

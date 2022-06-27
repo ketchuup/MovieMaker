@@ -1,6 +1,6 @@
 #include "InvertColors.h"
 
-void InvertColors::applyOn(Image &image) const
+void InvertColors::applyOn(Image &image)
 {
 	auto &[width, height, channels] = image.getProperties();
 
@@ -8,7 +8,7 @@ void InvertColors::applyOn(Image &image) const
 	{
 		for (std::ptrdiff_t y = 0; y < height; ++y)
 		{
-			auto pixel = image.getPixelPointer(x, y);
+			auto pixel = image.getPixel(x, y);
 
 			for (std::ptrdiff_t channel = 0; channel < channels; ++channel)
 			{

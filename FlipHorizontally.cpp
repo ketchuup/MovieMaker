@@ -1,6 +1,6 @@
 #include "FlipHorizontally.h"
 
-void FlipHorizontally::applyOn(Image &image) const
+void FlipHorizontally::applyOn(Image &image)
 {
 	auto &[width, height, channels] = image.getProperties();
 
@@ -8,7 +8,7 @@ void FlipHorizontally::applyOn(Image &image) const
 	{
 		for (std::ptrdiff_t y = 0; y < height; ++y)
 		{
-			auto a = image.getPixelPointer(x, y), b = image.getPixelPointer(width - x - 1, y);
+			auto a = image.getPixel(x, y), b = image.getPixel(width - x - 1, y);
 			std::swap_ranges(a, a + channels, b);
 		}
 	}

@@ -1,6 +1,6 @@
 #include "FlipVertically.h"
 
-void FlipVertically::applyOn(Image &image) const
+void FlipVertically::applyOn(Image &image)
 {
 	auto &[width, height, channels] = image.getProperties();
 
@@ -8,7 +8,7 @@ void FlipVertically::applyOn(Image &image) const
 	{
 		for (std::ptrdiff_t y = 0; y < height / 2; ++y)
 		{
-			auto a = image.getPixelPointer(x, y), b = image.getPixelPointer(x, height - y - 1);
+			auto a = image.getPixel(x, y), b = image.getPixel(x, height - y - 1);
 			std::swap_ranges(a, a + channels, b);
 		}
 	}

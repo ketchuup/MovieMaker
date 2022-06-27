@@ -16,9 +16,11 @@ struct ImageProperties final
 class Image final
 {
 	public:
+		using Pixel = std::uint8_t *;
+
 		explicit Image(const std::string &path);
 
-		Image(std::int32_t width, std::int32_t height, std::int32_t channels, std::uint8_t *color);
+		Image(std::int32_t width, std::int32_t height, std::int32_t channels, Image::Pixel color);
 
 		Image(const std::unique_ptr<Interpolation> &interpolation, const Image &previous, const Image &next, std::uint16_t begin, std::uint16_t end, std::uint16_t time);
 
@@ -36,13 +38,13 @@ class Image final
 
 		const ImageProperties& getProperties() const;
 
-		std::uint8_t* getPixelPointer(std::size_t x, std::size_t y) const;
+		Pixel getPixel(std::size_t x, std::size_t y) const;
 
 		void resize(std::int32_t width, std::int32_t height);
 
 	private:
 		ImageProperties properties;
-		std::uint8_t *data;
+		Pixel data;
 };
 
 #endif

@@ -6,8 +6,7 @@
 class InvertColors final : public Algorithm
 {
 	public:
-		void applyOn(Image &image) const override;
-
+		void applyOn(Image &image) override;
 };
 
 #endif

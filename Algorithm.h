@@ -6,7 +6,7 @@
 class Algorithm
 {
 	public:
-		virtual void applyOn(Image &image) const = 0;
+		virtual void applyOn(Image &image) = 0;
 };
 
 #endif
