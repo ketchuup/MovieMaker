@@ -59,10 +59,7 @@ void Movie::build()
 	}
 }
 
-void Movie::save() const
+void Movie::save(Saver &&saver) const
 {
-	for (const auto &frame : frames)
-	{
-		frame.save();
-	}
+	saver.save(frames);
 }

@@ -6,6 +6,7 @@
 #include <utility>
 #include <algorithm>
 #include <memory>
+#include <yami4-cpp/parameters.h>
 #include "Interpolation.h"
 
 struct ImageProperties final
@@ -22,7 +23,11 @@ class Image final
 
 		Image(std::int32_t width, std::int32_t height, std::int32_t channels, Image::Pixel color);
 
+		Image(Image::Pixel source, std::int32_t width, std::int32_t height, std::int32_t channels);
+
 		Image(const std::unique_ptr<Interpolation> &interpolation, const Image &previous, const Image &next, std::uint16_t begin, std::uint16_t end, std::uint16_t time);
+
+		explicit Image(yami::parameters &parameters);
 
 		Image(const Image &other);
 
@@ -41,6 +46,8 @@ class Image final
 		Pixel getPixel(std::size_t x, std::size_t y) const;
 
 		void resize(std::int32_t width, std::int32_t height);
+
+		void attachToParameters(yami::parameters& parameters) const;
 
 	private:
 		ImageProperties properties;

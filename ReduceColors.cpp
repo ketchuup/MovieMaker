@@ -8,7 +8,7 @@ void pr(Image::Pixel a)
 
 void ReduceColors::applyOn(Image& image)
 {
-	auto& [width, height, channels] = image.getProperties();
+	auto &[width, height, channels] = image.getProperties();
 
 	std::array<Position, clusters> positions;
 
@@ -37,63 +37,7 @@ void ReduceColors::applyOn(Image& image)
 	std::vector<std::size_t> current;
 	current.resize(width * height);
 
-	for (std::ptrdiff_t iteration = 0; iteration < iterations; ++iteration)
-	{
-		for (std::int32_t x = 0; x < width; ++x)
-		{
-			for (std::int32_t y = 0; y < height; ++y)
-			{
-				auto pixel = image.getPixel(x, y);
-				std::size_t center = closestCenter(pixel, channels);
-				current.at(y * width + x) = center;
-			}
-		}
-
-		std::array<std::uint64_t, clusters> counts { 0 };
-		std::array<std::array<std::uint64_t, 3>, clusters> totals { 0 };
-
-		for (std::ptrdiff_t index = 0; index < current.size(); ++index)
-		{
-			auto center = current[index];
-			counts[center] += 1;
-
-			auto y = index % width, x = (index - y) / width;
-			auto pixel = image.getPixel(x, y);
-			
-			for (std::int32_t channel = 0; channel < channels; ++channel)
-			{
-				totals[center][channel] += pixel[channel];
-			}
-		}
-
-		for (std::ptrdiff_t center = 0; center < clusters; ++center)
-		{
-			if (counts[center] != 0)
-			{
-				for (std::int32_t channel = 0; channel < channels; ++channel)
-				{
-					centers[center][channel] = totals[center][channel] / counts[center];
-				}
-			}
-		}
-
-		if (previous == current)
-		{
-			break;
-		}
-
-		previous = current;
-	}
-
-	for (std::int32_t x = 0; x < width; ++x)
-	{
-		for (std::int32_t y = 0; y < height; ++y)
-		{
-			auto pixel = image.getPixel(x, y);
-			std::size_t center = current.at(y * width + x);
-			std::copy_n(centers[center], channels, pixel);
-		}
-	}
+	
 }
 
 double ReduceColors::distance(Image::Pixel a, Image::Pixel b, std::int32_t channels)

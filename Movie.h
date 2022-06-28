@@ -2,7 +2,7 @@
 #define MOVIE_H
 
 #include <set>
-#include "Frame.h"
+#include "Saver.h"
 
 class Movie final
 {
@@ -13,7 +13,7 @@ class Movie final
 
 		void build();
 
-		void save() const;
+		void save(Saver &&saver) const;
 
 	private:
 		std::set<Frame> frames;

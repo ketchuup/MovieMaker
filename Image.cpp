@@ -22,6 +22,14 @@ Image::Image(std::int32_t width, std::int32_t height, std::int32_t channels, Ima
 	}
 }
 
+Image::Image(Image::Pixel source, std::int32_t width, std::int32_t height, std::int32_t channels) : properties({ width, height, channels })
+{
+	std::size_t size = properties.width * properties.height * properties.channels;
+
+	data = static_cast<Image::Pixel>(malloc(size));
+	std::copy_n(reinterpret_cast<const std::uint8_t *>(source), size, data);
+}
+
 Image::Image(const std::unique_ptr<Interpolation> &interpolation, const Image &previous, const Image &next, std::uint16_t begin, std::uint16_t end, std::uint16_t time) : properties(next.properties)
 {
 	data = static_cast<Image::Pixel>(malloc(properties.width * properties.height * properties.channels));
@@ -38,6 +46,19 @@ Image::Image(const std::unique_ptr<Interpolation> &interpolation, const Image &p
 			}
 		}
 	}
+}
+
+Image::Image(yami::parameters &parameters)
+{
+	properties.width = parameters.get_integer("width");
+	properties.height = parameters.get_integer("height");
+	properties.channels = parameters.get_integer("channels");
+
+	std::size_t size = properties.width * properties.height * properties.channels;
+	const void* received = parameters.get_binary("data", size);
+
+	data = static_cast<Image::Pixel>(malloc(size));
+	std::copy_n(reinterpret_cast<const std::uint8_t *>(received), size, data);
 }
 
 Image::Image(Image &&other) noexcept
@@ -120,4 +141,12 @@ void Image::resize(std::int32_t width, std::int32_t height)
 	data = replacement;
 	properties.width = width;
 	properties.height = height;
+}
+
+void Image::attachToParameters(yami::parameters &parameters) const
+{
+	parameters.set_binary("data", data, properties.width * properties.height * properties.channels);
+	parameters.set_integer("width", properties.width);
+	parameters.set_integer("height", properties.height);
+	parameters.set_integer("channels", properties.channels);
 }
