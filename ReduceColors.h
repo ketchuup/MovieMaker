@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include <random>
+#include <limits>
 #include "Algorithm.h"
 
 class ReduceColors final : public Algorithm
@@ -22,8 +23,7 @@ private:
 		}
 	};
 
-	static double distance(Image::Pixel a, Image::Pixel b, std::int32_t channels);
-	std::size_t closestCenter(Image::Pixel pixel, std::int32_t channels);
+	static std::uint64_t calculateDistance(Image::Pixel a, Image::Pixel b, std::int32_t channels);
 		
 	constexpr static std::size_t clusters = 64;
 	constexpr static std::size_t iterations = 16;
