@@ -11,21 +11,4 @@ public:
 	virtual void save(const std::set<Frame> &frames) = 0;
 };
 
-class FileSaver final : public Saver
-{
-public:
-	void save(const std::set<Frame> &frames) override;
-};
-
-class ReplySaver final : public Saver
-{
-public:
-	explicit ReplySaver(yami::incoming_message &incoming);
-
-	void save(const std::set<Frame> &frames) override;
-
-private:
-	yami::incoming_message &incoming;
-};
-
 #endif

@@ -2,6 +2,7 @@
 #define MOVIE_H
 
 #include <set>
+#include "Identity.h"
 #include "Saver.h"
 
 class Movie final

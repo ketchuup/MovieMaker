@@ -7,6 +7,12 @@
 #include "FlipVertically.h"
 #include "FlipHorizontally.h"
 
+#include "Identity.h"
+#include "Linear.h"
+#include "Logarithmic.h"
+
+#include "ReplySaver.h"
+
 std::int32_t main(std::int32_t count, char *arguments[])
 {
 	if (count < 2)
