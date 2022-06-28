@@ -19,6 +19,6 @@ add_executable(Client Client.cpp Image.cpp Image.h)
 target_link_libraries(Client ${YAMI4})
 target_include_directories(Client PRIVATE libraries)
 
-add_executable(Tests Tests.cpp Image.cpp Image.h FlipHorizontally.cpp FlipHorizontally.h FlipVertically.cpp FlipVertically.h InvertColors.cpp InvertColors.h ReduceColors.h)
+add_executable(Tests Tests.cpp Image.cpp Image.h FlipHorizontally.cpp FlipHorizontally.h FlipVertically.cpp FlipVertically.h InvertColors.cpp InvertColors.h ReduceColors.h Identity.cpp Identity.h Linear.cpp Linear.h Logarithmic.cpp Logarithmic.h)
 target_link_libraries(Tests ${YAMI4})
 target_include_directories(Tests PRIVATE libraries)

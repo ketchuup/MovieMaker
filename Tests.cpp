@@ -8,6 +8,10 @@
 #include "FlipHorizontally.h"
 #include "FlipVertically.h"
 
+#include "Identity.h"
+#include "Linear.h"
+#include "Logarithmic.h"
+
 bool equal(Image::Pixel a, Image::Pixel b, std::int32_t channels)
 {
 	for (std::int32_t channel = 0; channel < channels; ++channel)
@@ -21,10 +25,18 @@ bool equal(Image::Pixel a, Image::Pixel b, std::int32_t channels)
 	return true;
 }
 
+bool equal(double a, double b)
+{
+	constexpr double epsilon = 1.0;
+	return std::fabs(a - b) < epsilon;
+}
+
 TEST_CASE("Algorithms", "[algorithms]")
 {
-	std::int32_t width = 2, height = 4, channels = 3;
 	std::uint8_t white[] { 255, 255, 255 };
+
+	std::int32_t width = 2, height = 4, channels = 3;
+
 	Image initial(width, height, channels, white);
 
 	SECTION("Flip horizontally")
@@ -107,8 +119,10 @@ TEST_CASE("Algorithms", "[algorithms]")
 
 TEST_CASE("Image", "[image]")
 {
-	std::int32_t width = 2, height = 4, channels = 3;
 	std::uint8_t white[]{ 255, 255, 255 };
+
+	std::int32_t width = 2, height = 4, channels = 3;
+
 	Image initial(width, height, channels, white);
 
 	SECTION("Resize")
@@ -132,6 +146,72 @@ TEST_CASE("Image", "[image]")
 				else
 				{
 					REQUIRE(equal(pixel, initial.getPixel(x - offsetX, y - offsetY), channels));
+				}
+			}
+		}
+	}
+}
+
+TEST_CASE("Interpolation", "[interpolation]")
+{
+	std::uint8_t red[]{ 255, 0, 0 };
+	std::uint8_t green[]{ 0, 255, 0 };
+	
+	std::int32_t width = 2, height = 2, channels = 3;
+
+	Image a(width, height, channels, red), b(width, height, channels, green);
+	std::uint16_t timecodeA = 1, timecodeB = 3, resultTimecode = 2;
+
+	SECTION("Identity")
+	{
+		std::unique_ptr<Interpolation> interpolation = std::make_unique<Identity>();
+		Image result(interpolation, a, b, timecodeA, timecodeB, resultTimecode);
+
+		for (std::int32_t x = 0; x < width; ++x)
+		{
+			for (std::int32_t y = 0; y < height; ++y)
+			{
+				auto pixelB = b.getPixel(x, y), resultPixel = result.getPixel(width - x - 1, y);
+				REQUIRE(equal(pixelB, resultPixel, channels));
+			}
+		}
+	}
+
+	SECTION("Linear")
+	{
+		std::unique_ptr<Interpolation> interpolation = std::make_unique<Linear>();
+		Image result(interpolation, a, b, timecodeA, timecodeB, resultTimecode);
+
+		double progress = static_cast<float>(resultTimecode - timecodeA) / (timecodeB - timecodeA);
+
+		for (std::int32_t x = 0; x < width; ++x)
+		{
+			for (std::int32_t y = 0; y < height; ++y)
+			{
+				auto pixelA = a.getPixel(x, y), pixelB = b.getPixel(x, y), resultPixel = result.getPixel(width - x - 1, y);
+				
+				for (std::int32_t channel = 0; channel < channels; ++channel)
+				{
+					REQUIRE(equal(progress * (pixelB[channel] - pixelA[channel]), resultPixel[channel] - pixelA[channel]));
+				}
+			}
+		}
+	}
+
+	SECTION("Logarithmic")
+	{
+		std::unique_ptr<Interpolation> interpolation = std::make_unique<Logarithmic>();
+		Image result(interpolation, a, b, timecodeA, timecodeB, resultTimecode);
+
+		for (std::int32_t x = 0; x < width; ++x)
+		{
+			for (std::int32_t y = 0; y < height; ++y)
+			{
+				auto pixelA = a.getPixel(x, y), pixelB = b.getPixel(x, y), resultPixel = result.getPixel(width - x - 1, y);
+
+				for (std::int32_t channel = 0; channel < channels; ++channel)
+				{
+					REQUIRE(equal(std::log2(static_cast<double>(timecodeA + 1) / (timecodeB + 1)) * (pixelA[channel] - resultPixel[channel]), std::log2(static_cast<double>(timecodeA + 1) / (resultTimecode + 1)) * (pixelA[channel] - pixelB[channel])));
 				}
 			}
 		}
