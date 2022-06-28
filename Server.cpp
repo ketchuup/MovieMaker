@@ -27,7 +27,7 @@ std::int32_t main(std::int32_t count, char *arguments[])
 	Movie movie;
 
 	std::unordered_map<std::string, std::unique_ptr<Algorithm>> algorithms;
-	algorithms.emplace("Reduce colors", std::make_unique<ReduceColors>());
+	algorithms.emplace("Reduce colors", std::make_unique<ReduceColors<64>>());
 	algorithms.emplace("Invert colors", std::make_unique<InvertColors>());
 	algorithms.emplace("Flip vertically", std::make_unique<FlipVertically>());
 	algorithms.emplace("Flip horizontally", std::make_unique<FlipHorizontally>());
