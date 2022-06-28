@@ -2,8 +2,6 @@
 #include <yami4-cpp/yami.h>
 #include "Image.h"
 
-#define address "tcp://localhost:12345"
-
 template <typename T>
 T input(const std::string &prompt);
 
@@ -28,7 +26,7 @@ std::uint64_t input(const std::string &prompt)
 	return value;
 }
 
-std::vector<std::string> requestStringArray(yami::agent &agent, const std::string& name)
+std::vector<std::string> requestStringArray(yami::agent &agent, const std::string &address, const std::string& name)
 {
 	std::unique_ptr<yami::outgoing_message> outgoing = agent.send(address, "router", name);
 	outgoing->wait_for_completion();
@@ -55,8 +53,15 @@ std::vector<std::string> requestStringArray(yami::agent &agent, const std::strin
 	return array;
 }
 
-std::int32_t main()
+std::int32_t main(std::int32_t count, char *arguments[])
 {
+	if (count < 2)
+	{
+		throw std::runtime_error("Too few arguments.");
+	}
+
+	std::string address = arguments[1];
+
 	yami::agent agent;
 
 	while (true)
@@ -71,7 +76,7 @@ std::int32_t main()
 			auto path = input<std::string>("Path: ");
 			auto timecode = input<std::uint64_t>("Timecode: ");
 
-			auto interpolations = requestStringArray(agent, "interpolations");
+			auto interpolations = requestStringArray(agent, address, "interpolations");
 			std::string selectedInterpolation;
 			
 			if (interpolations.size() != 0)
@@ -95,7 +100,7 @@ std::int32_t main()
 				}
 			}
 
-			auto algorithms = requestStringArray(agent, "algorithms");
+			auto algorithms = requestStringArray(agent, address, "algorithms");
 				
 			if (algorithms.size() != 0)
 			{

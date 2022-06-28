@@ -1,15 +1,21 @@
 #include <unordered_map>
 #include <yami4-cpp/yami.h>
 #include "Movie.h"
+
 #include "ReduceColors.h"
 #include "InvertColors.h"
 #include "FlipVertically.h"
 #include "FlipHorizontally.h"
 
-#define address "tcp://localhost:12345"
-
-std::int32_t main()
+std::int32_t main(std::int32_t count, char *arguments[])
 {
+	if (count < 2)
+	{
+		throw std::runtime_error("Too few arguments.");
+	}
+
+	std::string address = arguments[1];
+
 	bool running = true;
 	
 	Movie movie;
