@@ -31,6 +31,8 @@ std::int32_t main(std::int32_t count, char *arguments[])
 	interpolations.emplace("Linear", std::make_unique<Linear>());
 	interpolations.emplace("Logarithmic", std::make_unique<Logarithmic>());
 
+	std::unique_ptr<Interpolation> defaultInterpolation = std::make_unique<Identity>();
+
 	yami::agent agent;
 
 	std::unordered_map<std::string, std::function<void (yami::incoming_message &)>> callbacks;
@@ -43,7 +45,7 @@ std::int32_t main(std::int32_t count, char *arguments[])
 									std::uint16_t timecode = parameters.get_integer("timecode");
 									std::string interpolation = parameters.get_string("interpolation");
 									
-									Frame frame(std::move(image), timecode, interpolations.at(interpolation));
+									Frame frame(std::move(image), timecode, interpolation.empty() ? defaultInterpolation : interpolations.at(interpolation));
 
 									auto length = parameters.get_string_array_length("algorithms");
 
@@ -55,6 +57,13 @@ std::int32_t main(std::int32_t count, char *arguments[])
 
 									movie.addFrame(std::move(frame));
  								});
+
+	callbacks.emplace("exists", [&](yami::incoming_message &incoming)
+								{
+									yami::parameters parameters;
+									parameters.set_boolean("exists", movie.exists(incoming.get_parameters().get_integer("timecode")));
+									incoming.reply(parameters);
+								});
 
 	callbacks.emplace("export", [&](yami::incoming_message &incoming)
 								{

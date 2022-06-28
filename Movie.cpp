@@ -63,3 +63,16 @@ void Movie::save(Saver &&saver) const
 {
 	saver.save(frames);
 }
+
+bool Movie::exists(std::uint16_t timecode)
+{
+	for (const Frame &frame : frames)
+	{
+		if (timecode == frame.getTimecode())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}

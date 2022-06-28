@@ -1,4 +1,6 @@
+#include <array>
 #include <iostream>
+#include <functional>
 #include <yami4-cpp/yami.h>
 #include "Image.h"
 
@@ -26,19 +28,24 @@ std::uint64_t input(const std::string &prompt)
 	return value;
 }
 
-std::vector<std::string> requestStringArray(yami::agent &agent, const std::string &address, const std::string& name)
+const yami::parameters &waitForReply(const std::unique_ptr<yami::outgoing_message> &outgoing)
 {
-	std::unique_ptr<yami::outgoing_message> outgoing = agent.send(address, "router", name);
 	outgoing->wait_for_completion();
 
 	auto state = outgoing->get_state();
 
 	if (state != yami::message_state::replied)
 	{
-		throw std::runtime_error("No answer has been not received.");
+		throw std::runtime_error("Message has not received reply.");
 	}
 
 	const yami::parameters &reply = outgoing->get_reply();
+}
+
+std::vector<std::string> requestStringArray(yami::agent &agent, const std::string &address, const std::string& name)
+{
+	std::unique_ptr<yami::outgoing_message> outgoing = agent.send(address, "router", name);
+	const yami::parameters &reply = waitForReply(outgoing);
 
 	auto length = reply.get_string_array_length(name);
 
@@ -62,9 +69,11 @@ std::int32_t main(std::int32_t count, char *arguments[])
 
 	std::string address = arguments[1];
 
+	bool running = true;
+
 	yami::agent agent;
 
-	while (true)
+	while (running)
 	{
 		std::cout << "[0] New frame" << std::endl;
 		std::cout << "[1] Enough" << std::endl;
@@ -76,9 +85,21 @@ std::int32_t main(std::int32_t count, char *arguments[])
 			auto path = input<std::string>("Path: ");
 			auto timecode = input<std::uint64_t>("Timecode: ");
 
+			yami::parameters parameters;
+			parameters.set_integer("timecode", timecode);
+
+			std::unique_ptr<yami::outgoing_message> outgoing = agent.send(address, "router", "exists", parameters);
+			const yami::parameters &reply = waitForReply(outgoing);
+
+			if (reply.get_boolean("exists"))
+			{
+				throw std::runtime_error("Frame alredy exists.");
+			}
+
 			auto interpolations = requestStringArray(agent, address, "interpolations");
+
 			std::string selectedInterpolation;
-			
+
 			if (interpolations.size() != 0)
 			{
 				auto length = interpolations.size();
@@ -101,7 +122,7 @@ std::int32_t main(std::int32_t count, char *arguments[])
 			}
 
 			auto algorithms = requestStringArray(agent, address, "algorithms");
-				
+
 			if (algorithms.size() != 0)
 			{
 				std::vector<std::string> selectedAlgorithms;
@@ -153,18 +174,10 @@ std::int32_t main(std::int32_t count, char *arguments[])
 		else if (selection == 1)
 		{
 			std::unique_ptr<yami::outgoing_message> outgoing = agent.send(address, "router", "export");
-			outgoing->wait_for_completion();
-
-			auto state = outgoing->get_state();
-
-			if (state != yami::message_state::replied)
-			{
-				throw std::runtime_error("Frames have not been received fully.");
-			}
-
-			const yami::parameters &reply = outgoing->get_reply();
+			const yami::parameters &reply = waitForReply(outgoing);
 
 			std::size_t length = reply.get_binary_array_length("datas");
+
 			std::int32_t *widths = reply.get_integer_array("widths", length);
 			std::int32_t *heights = reply.get_integer_array("heights", length);
 			std::int32_t *channelss = reply.get_integer_array("channelss", length);

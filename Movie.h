@@ -15,6 +15,8 @@ class Movie final
 
 		void save(Saver &&saver) const;
 
+		bool exists(std::uint16_t timecode);
+
 	private:
 		std::set<Frame> frames;
 };
