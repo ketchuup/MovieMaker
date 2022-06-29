@@ -1,13 +1,13 @@
 #define CATCH_CONFIG_MAIN
+
+#include <vector>
 #include <Catch2/catch.hpp>
-
 #include "Image.h"
-
+#include "NetworkUtilities.h"
 #include "ReduceColors.h"
 #include "InvertColors.h"
 #include "FlipHorizontally.h"
 #include "FlipVertically.h"
-
 #include "Identity.h"
 #include "Linear.h"
 #include "Logarithmic.h"
@@ -34,7 +34,6 @@ bool equal(double a, double b)
 TEST_CASE("Algorithms", "[algorithms]")
 {
 	std::uint8_t white[] { 255, 255, 255 };
-
 	std::int32_t width = 2, height = 4, channels = 3;
 
 	Image initial(width, height, channels, white);
@@ -120,7 +119,6 @@ TEST_CASE("Algorithms", "[algorithms]")
 TEST_CASE("Image", "[image]")
 {
 	std::uint8_t white[]{ 255, 255, 255 };
-
 	std::int32_t width = 2, height = 4, channels = 3;
 
 	Image initial(width, height, channels, white);
@@ -215,5 +213,56 @@ TEST_CASE("Interpolation", "[interpolation]")
 				}
 			}
 		}
+	}
+}
+
+TEST_CASE("Parameters", "[parameters]")
+{
+	SECTION("Attach/extract strings to/from parameters")
+	{
+		std::vector<std::string> values { "a", "b", "c" };
+		yami::parameters parameters;
+
+		attachStringsToParameters("strings", values, parameters);
+
+		REQUIRE(extractStringsFromParameters("strings", parameters) == values);
+	}
+
+	SECTION("Attach/extract image to/from parameters")
+	{
+		std::uint8_t white[]{ 255, 255, 255 };
+		std::int32_t width = 2, height = 2, channels = 3;
+
+		Image in(width, height, channels, white);
+
+		yami::parameters parameters;
+		in.attachToParameters(parameters);
+
+		Image out(parameters);
+
+		for (std::int32_t x = 0; x < width; ++x)
+		{
+			for (std::int32_t y = 0; y < height; ++y)
+			{
+				auto a = in.getPixel(x, y), b = out.getPixel(x, y);
+				REQUIRE(equal(a, b, channels));
+			}
+		}
+	}
+
+	SECTION("Attach string keys to parameters")
+	{
+		std::vector<std::string> keys = { "a", "b", "c" };
+		std::unordered_map<std::string, std::size_t> map;
+
+		for (std::ptrdiff_t index = 0; index < keys.size(); ++index)
+		{
+			map.emplace(keys[index], index);
+		}
+
+		yami::parameters parameters;
+		attachStringKeysToParameters("keys", map, parameters);
+
+		REQUIRE(extractStringsFromParameters("keys", parameters) == keys);
 	}
 }

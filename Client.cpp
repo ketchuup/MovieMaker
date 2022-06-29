@@ -3,6 +3,7 @@
 #include <functional>
 #include <yami4-cpp/yami.h>
 #include "Image.h"
+#include "NetworkUtilities.h"
 
 template <typename T>
 T input(const std::string &prompt);
@@ -28,38 +29,6 @@ std::uint64_t input(const std::string &prompt)
 	return value;
 }
 
-const yami::parameters &waitForReply(const std::unique_ptr<yami::outgoing_message> &outgoing)
-{
-	outgoing->wait_for_completion();
-
-	auto state = outgoing->get_state();
-
-	if (state != yami::message_state::replied)
-	{
-		throw std::runtime_error("Message has not received reply.");
-	}
-
-	const yami::parameters &reply = outgoing->get_reply();
-}
-
-std::vector<std::string> requestStringArray(yami::agent &agent, const std::string &address, const std::string& name)
-{
-	std::unique_ptr<yami::outgoing_message> outgoing = agent.send(address, "router", name);
-	const yami::parameters &reply = waitForReply(outgoing);
-
-	auto length = reply.get_string_array_length(name);
-
-	std::vector<std::string> array;
-	array.reserve(length);
-
-	for (std::ptrdiff_t index = 0; index < length; ++index)
-	{
-		array.push_back(reply.get_string_in_array(name, index));
-	}
-
-	return array;
-}
-
 std::int32_t main(std::int32_t count, char *arguments[])
 {
 	if (count < 2)
@@ -69,11 +38,9 @@ std::int32_t main(std::int32_t count, char *arguments[])
 
 	std::string address = arguments[1];
 
-	bool running = true;
-
 	yami::agent agent;
 
-	while (running)
+	while (true)
 	{
 		std::cout << "[0] New frame" << std::endl;
 		std::cout << "[1] Enough" << std::endl;
@@ -154,12 +121,7 @@ std::int32_t main(std::int32_t count, char *arguments[])
 
 						frame.set_string("interpolation", selectedInterpolation);
 
-						frame.create_string_array("algorithms", selectedAlgorithms.size());
-
-						for (std::ptrdiff_t index = 0; index < selectedAlgorithms.size(); ++index)
-						{
-							frame.set_string_in_array("algorithms", index, selectedAlgorithms[index]);
-						}
+						attachStringsToParameters("algorithms", algorithms, frame);
 
 						agent.send_one_way(address, "router", "upload", frame);
 						break;

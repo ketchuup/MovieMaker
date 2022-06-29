@@ -1,6 +1,8 @@
 #include <unordered_map>
 #include <yami4-cpp/yami.h>
 #include "Movie.h"
+#include "ReplySaver.h"
+#include "NetworkUtilities.h"
 
 #include "ReduceColors.h"
 #include "InvertColors.h"
@@ -10,8 +12,6 @@
 #include "Identity.h"
 #include "Linear.h"
 #include "Logarithmic.h"
-
-#include "ReplySaver.h"
 
 std::int32_t main(std::int32_t count, char *arguments[])
 {
@@ -87,13 +87,8 @@ std::int32_t main(std::int32_t count, char *arguments[])
 	callbacks.emplace("algorithms", [&](yami::incoming_message &incoming)
 									{
 										yami::parameters parameters;
-										parameters.create_string_array("algorithms", algorithms.size());
 										
-										for (auto iterator = algorithms.begin(); iterator != algorithms.end(); ++iterator)
-										{
-											auto index = std::distance(algorithms.begin(), iterator);
-											parameters.set_string_in_array("algorithms", index, iterator->first);
-										}
+										attachStringKeysToParameters("algorithms", algorithms, parameters);
 
 										incoming.reply(parameters);
 									});
@@ -101,13 +96,8 @@ std::int32_t main(std::int32_t count, char *arguments[])
 	callbacks.emplace("interpolations", [&](yami::incoming_message& incoming)
 										{
 											yami::parameters parameters;
-											parameters.create_string_array("interpolations", interpolations.size());
 
-											for (auto iterator = interpolations.begin(); iterator != interpolations.end(); ++iterator)
-											{
-												auto index = std::distance(interpolations.begin(), iterator);
-												parameters.set_string_in_array("interpolations", index, iterator->first);
-											}
+											attachStringKeysToParameters("interpolations", interpolations, parameters);
 
 											incoming.reply(parameters);
 										});
