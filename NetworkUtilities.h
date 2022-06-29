@@ -11,8 +11,6 @@ std::vector<std::string> extractStringsFromParameters(const std::string &name, c
 
 void attachStringsToParameters(const std::string &name, const std::vector<std::string> &array, yami::parameters &parameters);
 
-std::vector<std::string> requestStringArray(yami::agent &agent, const std::string &address, const std::string &name);
-
 template <typename T>
 void attachStringKeysToParameters(const std::string &name, const std::unordered_map<std::string, T> &map, yami::parameters &parameters)
 {
