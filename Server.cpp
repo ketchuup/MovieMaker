@@ -15,12 +15,12 @@
 
 std::int32_t main(std::int32_t count, char *arguments[])
 {
-	/*if (count < 2)
+	if (count < 2)
 	{
 		throw std::runtime_error("Too few arguments.");
-	}*/
+	}
 
-	std::string address = "tcp://localhost:12345";//= arguments[1];
+	std::string address = arguments[1];
 
 	bool running = true;
 	

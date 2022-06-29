@@ -131,7 +131,7 @@ private:
 
 		for (std::int32_t channel = 0; channel < channels; ++channel)
 		{
-			std::uint64_t difference = a[channel] - b[channel];
+			std::uint64_t difference = static_cast<std::uint64_t>(a[channel]) - b[channel];
 			accumulator += difference * difference;
 		}
 
