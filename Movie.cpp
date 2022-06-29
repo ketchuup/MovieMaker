@@ -3,7 +3,7 @@
 Movie::Movie()
 {
 	std::uint8_t white[3] { 255, 255, 255 };
-	frames.emplace(Image(10, 10, 3, white), 0, std::make_unique<Identity>());
+	frames.emplace(std::make_unique<Image>(10, 10, 3, white), 0, std::make_unique<Identity>());
 }
 
 void Movie::addFrame(Frame &&frame)
@@ -17,14 +17,14 @@ void Movie::build()
 
 	for (const auto &frame : frames)
 	{
-		width = std::max(width, frame.image.getProperties().width);
-		height = std::max(height, frame.image.getProperties().height);
+		width = std::max(width, frame.image->getProperties().width);
+		height = std::max(height, frame.image->getProperties().height);
 		timecode = std::max(timecode, frame.timecode);
 	}
 
 	for (auto &frame : frames)
 	{
-		const_cast<Frame &>(frame).image.resize(width, height);
+		const_cast<Frame &>(frame).image->resize(width, height);
 	}
 
 	auto get = 	[&](std::uint16_t timecode)
@@ -54,7 +54,7 @@ void Movie::build()
 			auto previousFrame = get(previous);
 			auto nextFrame = get(next);
 
-			frames.emplace(Image(nextFrame->interpolation, previousFrame->image, nextFrame->image, previous, next, current), current, std::make_unique<Identity>());
+			frames.emplace(std::make_unique<Image>(nextFrame->interpolation, *(previousFrame->image), *(nextFrame->image), previous, next, current), current, std::make_unique<Identity>());
 		}
 	}
 }

@@ -15,22 +15,23 @@
 
 std::int32_t main(std::int32_t count, char *arguments[])
 {
-	if (count < 2)
+	/*if (count < 2)
 	{
 		throw std::runtime_error("Too few arguments.");
-	}
+	}*/
 
-	std::string address = arguments[1];
+	std::string address = "tcp://localhost:12345";//= arguments[1];
 
 	bool running = true;
 	
 	Movie movie;
+	std::vector<std::thread> threads;
 
-	std::unordered_map<std::string, std::unique_ptr<Algorithm>> algorithms;
-	algorithms.emplace("Reduce colors", std::make_unique<ReduceColors<64>>());
-	algorithms.emplace("Invert colors", std::make_unique<InvertColors>());
-	algorithms.emplace("Flip vertically", std::make_unique<FlipVertically>());
-	algorithms.emplace("Flip horizontally", std::make_unique<FlipHorizontally>());
+	std::unordered_map<std::string, std::shared_ptr<Algorithm>> algorithms;
+	algorithms.emplace("Reduce colors", std::make_shared<ReduceColors<64>>());
+	algorithms.emplace("Invert colors", std::make_shared<InvertColors>());
+	algorithms.emplace("Flip vertically", std::make_shared<FlipVertically>());
+	algorithms.emplace("Flip horizontally", std::make_shared<FlipHorizontally>());
 
 	std::unordered_map<std::string, std::unique_ptr<Interpolation>> interpolations;
 	interpolations.emplace("Identity", std::make_unique<Identity>());
@@ -47,19 +48,23 @@ std::int32_t main(std::int32_t count, char *arguments[])
 								{
 									yami::parameters parameters = incoming.get_parameters();
 									
-									Image image(parameters);
+									std::unique_ptr<Image> image = std::make_unique<Image>(parameters);
 									std::uint16_t timecode = parameters.get_integer("timecode");
 									std::string interpolation = parameters.get_string("interpolation");
 									
 									Frame frame(std::move(image), timecode, interpolation.empty() ? defaultInterpolation : interpolations.at(interpolation));
 
 									auto length = parameters.get_string_array_length("algorithms");
+									std::vector<std::shared_ptr<Algorithm>> unapplied;
 
 									for (std::ptrdiff_t index = 0; index < length; ++index)
 									{
 										std::string algorithm = parameters.get_string_in_array("algorithms", index);
-										frame.apply(*(algorithms.at(algorithm).get()));
+										unapplied.push_back(algorithms.at(algorithm));
 									}
+
+									std::thread thread = frame.apply(std::move(unapplied));
+									threads.emplace_back(std::move(thread));
 
 									movie.addFrame(std::move(frame));
  								});
@@ -74,6 +79,12 @@ std::int32_t main(std::int32_t count, char *arguments[])
 	callbacks.emplace("export", [&](yami::incoming_message &incoming)
 								{
 									std::string back = incoming.get_source();
+
+									for (std::thread &thread : threads)
+									{
+										thread.join();
+									}
+
 									movie.build();
 									movie.save(ReplySaver(incoming));
 									
