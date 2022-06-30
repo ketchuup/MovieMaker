@@ -5,11 +5,9 @@ Frame::Frame(std::unique_ptr<Image>	&&image, std::uint16_t timecode, const std::
 
 }
 
-#include <iostream>
-
-std::thread Frame::apply(std::vector<std::shared_ptr<Algorithm>> &&algorithms)
+std::future<void> Frame::apply(std::vector<std::shared_ptr<Algorithm>> &&algorithms)
 {
-	return std::thread(	[](std::vector<std::shared_ptr<Algorithm>> &&algorithms, Image *image)
+	return std::async(	[](std::vector<std::shared_ptr<Algorithm>> &&algorithms, Image *image)
 						{
 							std::vector<std::shared_ptr<Algorithm>> unapplied = std::move(algorithms);
 
@@ -17,6 +15,7 @@ std::thread Frame::apply(std::vector<std::shared_ptr<Algorithm>> &&algorithms)
 							{
 								algorithm->applyOn(*image);
 							}
+
 						}, algorithms, image.get());
 }
 

@@ -1,8 +1,8 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-#include <thread>
 #include <vector>
+#include <future>
 #include <functional>
 #include "Algorithm.h"
 
@@ -11,7 +11,7 @@ class Frame
 	public:
 		Frame(std::unique_ptr<Image> &&image, std::uint16_t timecode, const std::unique_ptr<Interpolation> &interpolation);
 
-		std::thread apply(std::vector<std::shared_ptr<Algorithm>> &&algorithms);
+		std::future<void> apply(std::vector<std::shared_ptr<Algorithm>> &&algorithms);
 
 		friend inline bool operator<(const Frame &a, const Frame &b)
 		{

@@ -3,12 +3,10 @@
 #include "Movie.h"
 #include "ReplySaver.h"
 #include "NetworkUtilities.h"
-
 #include "ReduceColors.h"
 #include "InvertColors.h"
 #include "FlipVertically.h"
 #include "FlipHorizontally.h"
-
 #include "Identity.h"
 #include "Linear.h"
 #include "Logarithmic.h"
@@ -25,7 +23,7 @@ std::int32_t main(std::int32_t count, char *arguments[])
 	bool running = true;
 	
 	Movie movie;
-	std::vector<std::thread> threads;
+	std::vector<std::future<void>> futures;
 
 	std::unordered_map<std::string, std::shared_ptr<Algorithm>> algorithms;
 	algorithms.emplace("Reduce colors", std::make_shared<ReduceColors<64>>());
@@ -63,8 +61,8 @@ std::int32_t main(std::int32_t count, char *arguments[])
 										unapplied.push_back(algorithms.at(algorithm));
 									}
 
-									std::thread thread = frame.apply(std::move(unapplied));
-									threads.emplace_back(std::move(thread));
+									std::future future = frame.apply(std::move(unapplied));
+									futures.emplace_back(std::move(future));
 
 									movie.addFrame(std::move(frame));
  								});
@@ -80,9 +78,9 @@ std::int32_t main(std::int32_t count, char *arguments[])
 								{
 									std::string back = incoming.get_source();
 
-									for (std::thread &thread : threads)
+									for (auto &future : futures)
 									{
-										thread.join();
+										future.wait();
 									}
 
 									movie.build();
