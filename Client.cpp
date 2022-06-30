@@ -137,6 +137,8 @@ std::int32_t main(std::int32_t count, char *arguments[])
 								agent.send_one_way(address, "router", destination, parameters);
 							};
 
+	sendOneWay("connect", yami::parameters());
+
 	while (true)
 	{
 		std::cout << "[0] New frame" << std::endl;

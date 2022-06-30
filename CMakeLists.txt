@@ -11,7 +11,7 @@ if (${MSVC})
 	link_libraries(ws2_32.lib Winmm.lib)
 endif()
 
-add_executable(Server Server.cpp Image.cpp Image.h Algorithm.h FlipHorizontally.cpp FlipHorizontally.h FlipVertically.cpp FlipVertically.h InvertColors.cpp InvertColors.h Frame.cpp Frame.h Movie.cpp Movie.h Interpolation.h Identity.cpp Identity.h Linear.cpp Linear.h Logarithmic.cpp Logarithmic.h ReduceColors.h Saver.h FileSaver.cpp FileSaver.h ReplySaver.cpp ReplySaver.h NetworkUtilities.cpp NetworkUtilities.h)
+add_executable(Server Server.cpp Image.cpp Image.h Algorithm.h FlipHorizontally.cpp FlipHorizontally.h FlipVertically.cpp FlipVertically.h InvertColors.cpp InvertColors.h Frame.cpp Frame.h Movie.cpp Movie.h Interpolation.h Identity.cpp Identity.h Linear.cpp Linear.h Logarithmic.cpp Logarithmic.h ReduceColors.h Saver.h FileSaver.cpp FileSaver.h ReplySaver.cpp ReplySaver.h NetworkUtilities.cpp NetworkUtilities.h Register.cpp Register.h Instance.cpp Instance.h)
 target_link_libraries(Server ${YAMI4})
 target_include_directories(Server PRIVATE libraries)
 
