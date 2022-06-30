@@ -85,7 +85,6 @@ std::int32_t main(std::int32_t count, char *arguments[])
 
 									movie.build();
 									movie.save(ReplySaver(incoming));
-									
 								});
 
 	callbacks.emplace("close", [&](yami::incoming_message &)

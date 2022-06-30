@@ -20,6 +20,7 @@ class Movie final
 
 	private:
 		std::set<Frame> frames;
+		std::future<void> future;
 };
 
 #endif
