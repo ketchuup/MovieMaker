@@ -8,14 +8,10 @@
 #include "NetworkUtilities.h"
 #include "Register.h"
 
-#include <iostream>
-
 class Instance final
 {
 public:
 	explicit Instance(yami::agent &agent);
-
-	void handle(yami::incoming_message &incoming);
 
 private:
 	void upload(yami::incoming_message &incoming);
@@ -24,16 +20,13 @@ private:
 
 	void export_(yami::incoming_message &incoming);
 
-	void algorithms(yami::incoming_message &incoming);
-
-	void interpolations(yami::incoming_message &incoming);
-
 	yami::agent &agent;
 
 	Movie movie;
 	std::vector<std::future<void>> futures;
 	std::future<void> previous;
 
+public:
 	static const std::unordered_map<std::string, std::function<void (Instance *, yami::incoming_message &)>> callbacks;
 };
 

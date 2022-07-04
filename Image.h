@@ -41,7 +41,7 @@ class Image final
 
 		void write(const std::string &path) const;
 
-		const ImageProperties& getProperties() const;
+		const ImageProperties getProperties() const;
 
 		Pixel getPixel(std::size_t x, std::size_t y) const;
 

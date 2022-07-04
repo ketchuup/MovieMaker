@@ -1,11 +1,11 @@
 #include "Register.h"
 
-const std::unordered_map<std::string, std::shared_ptr<Algorithm>> allAlgorithms
+const std::unordered_map<std::string, std::function<std::unique_ptr<Algorithm>()>> allAlgorithmCreators
 {
-	{ "Invert colors", std::make_shared<InvertColors>() },
-	{ "Flip vertically", std::make_shared<FlipVertically>() },
-	{ "Flip horizontally", std::make_shared<FlipHorizontally>() },
-	{ "Reduce colors", std::make_shared<ReduceColors<64>>() }
+	{ "Invert colors", []() { return std::make_unique<InvertColors>(); } },
+	{ "Reduce colors", []() { return std::make_unique<ReduceColors<64>>(); } },
+	{ "Flip vertically", []() { return std::make_unique<FlipVertically>(); } },
+	{ "Flip horizontally", []() { return std::make_unique<FlipHorizontally>(); } }
 };
 
 const std::unordered_map<std::string, std::unique_ptr<Interpolation>> allInterpolations =

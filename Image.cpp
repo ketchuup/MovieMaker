@@ -25,7 +25,6 @@ Image::Image(std::int32_t width, std::int32_t height, std::int32_t channels, Ima
 Image::Image(Image::Pixel source, std::int32_t width, std::int32_t height, std::int32_t channels) : properties({ width, height, channels })
 {
 	std::size_t size = properties.width * properties.height * properties.channels;
-
 	data = static_cast<Image::Pixel>(malloc(size));
 	std::copy_n(reinterpret_cast<const std::uint8_t *>(source), size, data);
 }
@@ -55,7 +54,7 @@ Image::Image(yami::parameters &parameters)
 	properties.channels = parameters.get_integer("channels");
 
 	std::size_t size = properties.width * properties.height * properties.channels;
-	const void* received = parameters.get_binary("data", size);
+	const void *received = parameters.get_binary("data", size);
 
 	data = static_cast<Image::Pixel>(malloc(size));
 	std::copy_n(reinterpret_cast<const std::uint8_t *>(received), size, data);
@@ -112,7 +111,7 @@ void Image::write(const std::string &path) const
 	stbi_write_bmp(path.c_str(), properties.width, properties.height, properties.channels, data);
 }
 
-const ImageProperties& Image::getProperties() const
+const ImageProperties Image::getProperties() const
 {
 	return properties;
 }

@@ -11,11 +11,38 @@ std::int32_t main(std::int32_t count, char *arguments[])
 
 	std::string address = arguments[1];
 
-	std::vector<std::future<void>> futures;
-
 	yami::agent agent;
-
 	std::unordered_map<std::string, Instance> instances;
+	std::unordered_map<std::string, std::future<void>> previous;
+
+	std::unordered_map<std::string, std::function<void (yami::incoming_message &)>> callbacks;
+
+	callbacks.emplace("connect",	[&](yami::incoming_message &incoming)
+									{
+										std::string from = incoming.get_source();
+										instances.emplace(from, Instance(agent));
+									});
+
+	callbacks.emplace("close",	[&](yami::incoming_message &incoming)
+								{
+									std::string from = incoming.get_source();
+									instances.erase(from);
+									previous.erase(from);
+								});
+
+	callbacks.emplace("algorithms", [&](yami::incoming_message &incoming)
+									{
+										yami::parameters parameters;
+										attachStringKeysToParameters("algorithms", allAlgorithmCreators, parameters);
+										incoming.reply(parameters);
+									});
+
+	callbacks.emplace("interpolations", [&](yami::incoming_message &incoming)
+										{
+											yami::parameters parameters;
+											attachStringKeysToParameters("interpolations", allInterpolations, parameters);
+											incoming.reply(parameters);
+										});
 	
 	agent.register_object("router", [&](yami::incoming_message &incoming)
 									{
@@ -24,18 +51,36 @@ std::int32_t main(std::int32_t count, char *arguments[])
 
 										std::cout << from << ": " << name << std::endl;
 
-										if (name == "close")
+										if (name == "connect")
 										{
-											instances.erase(from);
+											previous.emplace(from, std::future<void>()); // idk how to insert default future into map before calling "connect" callback
 										}
-										else if (name == "connect")
+
+										std::function<void (yami::incoming_message &)> callback;
+
+										try
 										{
-											instances.emplace(from, Instance(agent));
+											callback = callbacks.at(name);
 										}
-										else
+										catch (std::out_of_range)
 										{
-											instances.at(from).handle(incoming);
+											using namespace std::placeholders;
+											callback = std::bind(Instance::callbacks.at(name), &instances.at(from), _1);
 										}
+
+										std::unique_ptr<yami::incoming_message> pointer = std::make_unique<yami::incoming_message>(incoming);
+
+										std::future<void> current = std::async(	[](std::future<void> previous, std::function<void (yami::incoming_message &)> callback, std::unique_ptr<yami::incoming_message> incoming)
+																				{
+																					if (previous.valid())
+																					{
+																						previous.wait();
+																					}
+
+																					callback(*incoming);
+																				}, std::move(previous.at(from)), std::move(callback), std::move(pointer));
+
+										previous.at(from) = std::move(current);
 									});
 
 	agent.add_listener(address);

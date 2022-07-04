@@ -13,8 +13,8 @@ class ReduceColors final : public Algorithm
 public:
 	void applyOn(Image &image) override
 	{
-		auto &[width, height, channels] = image.getProperties();
-
+		auto [width, height, channels] = image.getProperties();
+		
 		std::array<Position, clusters> positions;
 
 		std::mt19937 generator;

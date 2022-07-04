@@ -1,6 +1,7 @@
 #ifndef REGISTER_H
 #define REGISTER_H
 
+#include <functional>
 #include <unordered_map>
 #include "ReduceColors.h"
 #include "InvertColors.h"
@@ -10,7 +11,7 @@
 #include "Identity.h"
 #include "Logarithmic.h"
 
-extern const std::unordered_map<std::string, std::shared_ptr<Algorithm>> allAlgorithms;
+extern const std::unordered_map<std::string, std::function<std::unique_ptr<Algorithm> ()>> allAlgorithmCreators;
 
 extern const std::unordered_map<std::string, std::unique_ptr<Interpolation>> allInterpolations;
 
